@@ -1,6 +1,4 @@
-# KafkaStreams
-Kafka Streams learning 
-# README #
+# Kafka Streams learning 
 
 # Quick summary
 This project is for Kafka Streaming POC/Demon and learning purpose. Sample of how to use Avro Specific with Kafka Streaming. 
