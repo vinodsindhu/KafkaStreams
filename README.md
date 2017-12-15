@@ -12,10 +12,15 @@ Based on Confluent Open Source 4.0.0 with Java 1.8. Maven based JAVA project usi
 Using Confluent CLI "confluent start" starts zookeeper, kafka, schema-registry, rest-proxy and kafka connect. After that create 4 topics as below.
 
 confluent start
-kafka-topics --zookeeper 127.0.0.1:2181 --create --topic meter_usage                   --partitions 1 --replication-factor 1
-kafka-topics --zookeeper 127.0.0.1:2181 --create --topic account_snapshot              --partitions 1 --replication-factor 1
-kafka-topics --zookeeper 127.0.0.1:2181 --create --topic temp001_to_account_snapshot   --partitions 1 --replication-factor 1
-kafka-topics --zookeeper 127.0.0.1:2181 --create --topic usage_alert                   --partitions 1 --replication-factor 1
+
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic meter_usage --partitions 1 --replication-factor 1
+
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic account_snapshot --partitions 1 --replication-factor 1
+
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic temp001_to_account_snapshot --partitions 1 --replication-factor 1
+
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic usage_alert --partitions 1 --replication-factor 1
+
 
 Project is divided into two Stream Processing Apps.1. UsageIn and2. ProcessUsage
 
