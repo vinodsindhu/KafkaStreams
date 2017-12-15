@@ -101,9 +101,11 @@ curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
    -H "Accept: application/vnd.kafka.v2+json" \
    --data '{"key_schema_id": "1",
    "value_schema_id": "2",
-   "records": [ {"key":"1000003","value":{"user_name":"dtheiss",   "email_id":"dtheiss@temp.com",   "customer":"10003","premise":"1000003","company":"30","meter":"M003","total_usage":3,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}},
+   "records": [
+   {"key":"1000003","value":{"user_name":"dtheiss",   "email_id":"dtheiss@temp.com",   "customer":"10003","premise":"1000003","company":"30","meter":"M003","total_usage":3,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}},
    {"key":"1000004","value":{"user_name":"dfrohlich", "email_id":"dfrohlich@temp.com", "customer":"10004","premise":"1000004","company":"30","meter":"M004","total_usage":4,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}},
-   {"key":"1000005","value":{"user_name":"bphilippus","email_id":"bphilippus@temp.com","customer":"10005","premise":"1000005","company":"30","meter":"M005","total_usage":5,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}}                          ] }'\      "http://localhost:8082/topics/account_snapshot"
+   {"key":"1000005","value":{"user_name":"bphilippus","email_id":"bphilippus@temp.com","customer":"10005","premise":"1000005","company":"30","meter":"M005","total_usage":5,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}}                          ] }'\
+   "http://localhost:8082/topics/account_snapshot"
 ```
 
 #Sending Usage data to meter_usage.
@@ -119,6 +121,27 @@ Here in first POST full key and value AVRO schema is specified.
           "http://localhost:8082/topics/meter_usage"
 ```
           
-   Pushing data with schema ID's
-curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \      -H "Accept: application/vnd.kafka.v2+json" \      --data '{"key_schema_id":"1",               "value_schema_id":"3",               "records": [{"key":"1000002","value":{"premise":"1000002","meter":"M002","usage":20} } ] }'\      "http://localhost:8082/topics/meter_usage"
-Pushing multiple records with schema ID's   curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \      -H "Accept: application/vnd.kafka.v2+json" \      --data '{"key_schema_id":"1",               "value_schema_id":"3",               "records": [{"key":"1000003","value":{"premise":"1000003","meter":"M003","usage":3} },                           {"key":"1000004","value":{"premise":"1000004","meter":"M004","usage":4} },                           {"key":"1000005","value":{"premise":"1000005","meter":"M005","usage":5} }                          ] }'\      "http://localhost:8082/topics/meter_usage"      
+Pushing data with schema ID's
+
+```
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+-H "Accept: application/vnd.kafka.v2+json" \
+--data '{"key_schema_id":"1",
+"value_schema_id":"3",
+"records": [{"key":"1000002","value":{"premise":"1000002","meter":"M002","usage":20} } ] }'\
+"http://localhost:8082/topics/meter_usage"
+```
+
+Pushing multiple records with schema ID's
+
+```
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+-H "Accept: application/vnd.kafka.v2+json" \
+--data '{"key_schema_id":"1",
+"value_schema_id":"3",
+"records": [
+{"key":"1000003","value":{"premise":"1000003","meter":"M003","usage":3} },                           
+{"key":"1000004","value":{"premise":"1000004","meter":"M004","usage":4} },                           
+{"key":"1000005","value":{"premise":"1000005","meter":"M005","usage":5} } ] }'\
+"http://localhost:8082/topics/meter_usage"      
+```
