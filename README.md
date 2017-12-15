@@ -34,10 +34,9 @@ Avro Schema for topic meter_usage:
                   {"name": "meter",       "type": "string",  "doc": "Meter Number"},
                   {"name": "usage",       "type": "int",     "doc": "Usage from field."}  ]}
 ```
-               
                
 Second Topic is account_snapshot. Master data of Account is streamed from Database to this topic.
-
+```
 { "namespace": "avro",  
   "type": "record",  
   "name": "account_snapshot",  
@@ -51,13 +50,20 @@ Second Topic is account_snapshot. Master data of Account is streamed from Databa
               {"name": "usage_alerted_at_100",   "type": "string",  "default": "N",   "doc": "Usage alert once usage crossed 100"},
               {"name": "usage_alerted_at_200",   "type": "string",  "default": "N",   "doc": "Usage alert once usage crossed 200"}
               ]}
+```
 
 Meter usage comming from topic meter_usage is accumulated to field total_usage in here. This is acheved by joining Kstream from topic meter_usage and KTable from topic account_snapshot. Summarised usage record is written to one intermediate temporary topic temp001_to_account_snapshot.
 
 During the stream processing logic is there that check for wheather the usage has crossed 100 or 200 units and accordingly Usage Alert record is generated andsent to another topic usage_alert that has below schema defination.
-
-{ "namespace": "avro",  "type": "record",  "name": "usage_alert",  "fields": [ {"name": "user_name",      "type": "string",     "doc": "Web User Name"},              {"name": "email_id",       "type": "string",     "doc": "Email ID"},              {"name": "usage_alert",    "type": "string",     "doc": "Usage Alert description"}            ]}
-
+```
+{ "namespace": "avro",
+  "type": "record",
+  "name": "usage_alert",
+  "fields": [ {"name": "user_name",      "type": "string",     "doc": "Web User Name"},
+              {"name": "email_id",       "type": "string",     "doc": "Email ID"},
+              {"name": "usage_alert",    "type": "string",     "doc": "Usage Alert description"}
+              ]}
+```
 #ProcessUsage : 
 
 This app writes summarised results from temp001_to_account_snapshot to the main account snapshot topic account_snapshot. We need this in seperate app because in above app UsageIn we are reading account_snapshot as KTable. Reading as Ktable and writing to same topic create cyclic reference and create issues.
@@ -68,7 +74,10 @@ I have used below statements to produce / simulate data to topics account_snapsh
 #Sending Account Master data to account_snapshot.
 
 Here in first POST full key and value AVRO schema is specified. 
-curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \      -H "Accept: application/vnd.kafka.v2+json" \      --data '{"key_schema":"{\"namespace\": \"avro\",\"name\":\"premise_key\",\"type\":\"string\"}",               "value_schema":"{\"type\":\"record\",\"name\":\"account_snapshot\",\"namespace\":\"avro\",\"fields\":[{\"name\":\"user_name\",\"type\":\"string\",\"doc\":\"Web User Name\"},{\"name\":\"email_id\",\"type\":\"string\",\"doc\":\"Email ID\"},{\"name\":\"customer\",\"type\":\"string\",\"doc\":\"Customer code\"},{\"name\":\"premise\",\"type\":\"string\",\"doc\":\"Premise code\"},{\"name\":\"company\",\"type\":\"string\",\"doc\":\"Company South or North\"},{\"name\":\"meter\",\"type\":\"string\",\"doc\":\"Meter Number\"},{\"name\":\"total_usage\",\"type\":\"int\",\"doc\":\"Total unbilled usage on this meter.\"},{\"name\":\"usage_alerted_at_100\",\"type\":\"string\",\"doc\":\"Usage alert created once usage crossed 100\",\"default\":\"N\"},{\"name\":\"usage_alerted_at_200\",\"type\":\"string\",\"doc\":\"Usage alert created once usage crossed 200\",\"default\":\"N\"}]}",               "records": [{"key":"1000001","value":{"user_name":"vsindhu","email_id":"vsindhu@temp.com","customer":"10001","premise":"1000001","company":"30","meter":"M001","total_usage":1,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"} } ] }'\      "http://localhost:8082/topics/account_snapshot"   
+```
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \      -H "Accept: application/vnd.kafka.v2+json" \      --data '{"key_schema":"{\"namespace\": \"avro\",\"name\":\"premise_key\",\"type\":\"string\"}",               "value_schema":"{\"type\":\"record\",\"name\":\"account_snapshot\",\"namespace\":\"avro\",\"fields\":[{\"name\":\"user_name\",\"type\":\"string\",\"doc\":\"Web User Name\"},{\"name\":\"email_id\",\"type\":\"string\",\"doc\":\"Email ID\"},{\"name\":\"customer\",\"type\":\"string\",\"doc\":\"Customer code\"},{\"name\":\"premise\",\"type\":\"string\",\"doc\":\"Premise code\"},{\"name\":\"company\",\"type\":\"string\",\"doc\":\"Company South or North\"},{\"name\":\"meter\",\"type\":\"string\",\"doc\":\"Meter Number\"},{\"name\":\"total_usage\",\"type\":\"int\",\"doc\":\"Total unbilled usage on this meter.\"},{\"name\":\"usage_alerted_at_100\",\"type\":\"string\",\"doc\":\"Usage alert created once usage crossed 100\",\"default\":\"N\"},{\"name\":\"usage_alerted_at_200\",\"type\":\"string\",\"doc\":\"Usage alert created once usage crossed 200\",\"default\":\"N\"}]}",               "records": [{"key":"1000001","value":{"user_name":"vsindhu","email_id":"vsindhu@temp.com","customer":"10001","premise":"1000001","company":"30","meter":"M001","total_usage":1,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"} } ] }'\      "http://localhost:8082/topics/account_snapshot"  
+```
+
 If schemas are created in advance and we know schema ID's then we dont need to specify schema. Only have to specify schema ID's.     
 curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \      -H "Accept: application/vnd.kafka.v2+json" \      --data '{"key_schema_id": "1",               "value_schema_id": "2",               "records": [{"key":"1000002","value":{"user_name":"nolson","email_id":"nolson@temp.com","customer":"10002","premise":"1000002","company":"10","meter":"M002","total_usage":2,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}}]}'\      "http://localhost:8082/topics/account_snapshot"
    Here we are pushing myltiple reords in single POST with schema ID's         curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \      -H "Accept: application/vnd.kafka.v2+json" \      --data '{"key_schema_id": "1",               "value_schema_id": "2",               "records": [ {"key":"1000003","value":{"user_name":"dtheiss",   "email_id":"dtheiss@temp.com",   "customer":"10003","premise":"1000003","company":"30","meter":"M003","total_usage":3,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}},                            {"key":"1000004","value":{"user_name":"dfrohlich", "email_id":"dfrohlich@temp.com", "customer":"10004","premise":"1000004","company":"30","meter":"M004","total_usage":4,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}},                            {"key":"1000005","value":{"user_name":"bphilippus","email_id":"bphilippus@temp.com","customer":"10005","premise":"1000005","company":"30","meter":"M005","total_usage":5,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}}                          ] }'\      "http://localhost:8082/topics/account_snapshot"         #Sending Usage data to meter_usage.
