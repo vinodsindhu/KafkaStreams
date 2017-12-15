@@ -26,11 +26,18 @@ Electric Meters from field are sending Usage or Consumption after every certain 
 
 Avro Schema for topic meter_usage:
 
-```{ "namespace": "avro",  "type": "record",  "name": "meter_usage",  "fields": [  {"name": "premise",     "type": "string",  "doc": "Premise"},               {"name": "meter",       "type": "string",  "doc": "Meter Number"},               {"name": "usage",       "type": "int",     "doc": "Usage from field."}  ]}```
+```
+{ "namespace": "avro",  
+     "type": "record",  
+     "name": "meter_usage",
+     "fields": [  {"name": "premise",     "type": "string",  "doc": "Premise"},
+     {"name": "meter",       "type": "string",  "doc": "Meter Number"},
+     {"name": "usage",       "type": "int",     "doc": "Usage from field."}  ]}
+     ```
                
                
 Second Topic is account_snapshot. Master data of Account is streamed from Database to this topic.
-
+```
 { "namespace": "avro",  
   "type": "record",  
   "name": "account_snapshot",  
@@ -44,6 +51,7 @@ Second Topic is account_snapshot. Master data of Account is streamed from Databa
               {"name": "usage_alerted_at_100",   "type": "string",  "default": "N",   "doc": "Usage alert once usage crossed 100"},
               {"name": "usage_alerted_at_200",   "type": "string",  "default": "N",   "doc": "Usage alert once usage crossed 200"}
               ]}
+```
 
 Meter usage comming from topic meter_usage is accumulated to field total_usage in here. This is acheved by joining Kstream from topic meter_usage and KTable from topic account_snapshot. Summarised usage record is written to one intermediate temporary topic temp001_to_account_snapshot.
 
