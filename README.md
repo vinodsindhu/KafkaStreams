@@ -33,9 +33,7 @@ Avro Schema for topic meter_usage:
   "type": "record",
   "name": "meter_usage",
   "fields": [  {"name": "premise",     "type": "string",  "doc": "Premise"},
-  
                {"name": "meter",       "type": "string",  "doc": "Meter Number"},
-               
                {"name": "usage",       "type": "int",     "doc": "Usage from field."}  ]}
                
                
