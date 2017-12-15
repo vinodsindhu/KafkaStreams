@@ -1,0 +1,10 @@
+avro/meter_usage$Builder.class
+avro/meter_usage.class
+avro/usage_alert.class
+avro/account_snapshot$1.class
+avro/meter_usage$1.class
+avro/account_snapshot.class
+KafkaStreams/SumUpUsage.class
+avro/usage_alert$Builder.class
+avro/account_snapshot$Builder.class
+avro/usage_alert$1.class

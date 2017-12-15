@@ -1,0 +1,18 @@
+{
+  "type" : "record",
+  "name" : "meter_usage",
+  "namespace" : "avro",
+  "fields" : [ {
+    "name" : "premise",
+    "type" : "string",
+    "doc" : "Premise"
+  }, {
+    "name" : "meter",
+    "type" : "string",
+    "doc" : "Meter Number"
+  }, {
+    "name" : "usage",
+    "type" : "int",
+    "doc" : "Usage from field."
+  } ]
+}

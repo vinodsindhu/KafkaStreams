@@ -1,0 +1,9 @@
+{ "namespace": "avro",
+  "type": "record",
+  "name": "usage_alert",
+  "fields": [ {"name": "user_name",      "type": "string",     "doc": "Web User Name"},
+              {"name": "email_id",       "type": "string",     "doc": "Email ID"},
+              {"name": "usage_alert",    "type": "string",     "doc": "Usage Alert description"}
+            ]
+}
+

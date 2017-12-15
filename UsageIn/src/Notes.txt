@@ -1,0 +1,114 @@
+/*
+
+confluent destroy
+
+confluent start
+
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic meter_usage                   --partitions 1 --replication-factor 1
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic temp001_to_account_snapshot   --partitions 1 --replication-factor 1
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic account_snapshot              --partitions 1 --replication-factor 1
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic usage_alert                   --partitions 1 --replication-factor 1
+
+//////////////////////////////////////////////////////////////////////////////////
+
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+      -H "Accept: application/vnd.kafka.v2+json" \
+      --data '{"key_schema":"{\"namespace\": \"avro\",\"name\":\"premise_key\",\"type\":\"string\"}",
+               "value_schema":"{\"type\":\"record\",\"name\":\"account_snapshot\",\"namespace\":\"avro\",\"fields\":[{\"name\":\"user_name\",\"type\":\"string\",\"doc\":\"Web User Name\"},{\"name\":\"email_id\",\"type\":\"string\",\"doc\":\"Email ID\"},{\"name\":\"customer\",\"type\":\"string\",\"doc\":\"Customer code\"},{\"name\":\"premise\",\"type\":\"string\",\"doc\":\"Premise code\"},{\"name\":\"company\",\"type\":\"string\",\"doc\":\"Company South or North\"},{\"name\":\"meter\",\"type\":\"string\",\"doc\":\"Meter Number\"},{\"name\":\"total_usage\",\"type\":\"int\",\"doc\":\"Total unbilled usage on this meter.\"},{\"name\":\"usage_alerted_at_100\",\"type\":\"string\",\"doc\":\"Usage alert created once usage crossed 100\",\"default\":\"N\"},{\"name\":\"usage_alerted_at_200\",\"type\":\"string\",\"doc\":\"Usage alert created once usage crossed 200\",\"default\":\"N\"}]}",
+               "records": [{"key":"1000001","value":{"user_name":"vsindhu","email_id":"vsindhu@temp.com","customer":"10001","premise":"1000001","company":"30","meter":"M001","total_usage":1,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"} } ] }'\
+      "http://localhost:8082/topics/account_snapshot"
+
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+      -H "Accept: application/vnd.kafka.v2+json" \
+      --data '{"key_schema_id": "1",
+               "value_schema_id": "2",
+               "records": [{"key":"1000002","value":{"user_name":"nolson","email_id":"nolson@temp.com","customer":"10002","premise":"1000002","company":"10","meter":"M002","total_usage":2,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}}]}'\
+      "http://localhost:8082/topics/account_snapshot"
+
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+      -H "Accept: application/vnd.kafka.v2+json" \
+      --data '{"key_schema_id": "1",
+               "value_schema_id": "2",
+               "records": [ {"key":"1000003","value":{"user_name":"dtheiss",   "email_id":"dtheiss@temp.com",   "customer":"10003","premise":"1000003","company":"30","meter":"M003","total_usage":3,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}},
+                            {"key":"1000004","value":{"user_name":"dfrohlich", "email_id":"dfrohlich@temp.com", "customer":"10004","premise":"1000004","company":"30","meter":"M004","total_usage":4,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}},
+                            {"key":"1000005","value":{"user_name":"bphilippus","email_id":"bphilippus@temp.com","customer":"10005","premise":"1000005","company":"30","meter":"M005","total_usage":5,"usage_alerted_at_100":"N","usage_alerted_at_200":"N"}}
+                          ] }'\
+      "http://localhost:8082/topics/account_snapshot"
+
+//////////////////////////////////////////////////////////////////////////////////
+
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+      -H "Accept: application/vnd.kafka.v2+json" \
+      --data '{"key_schema":"{\"namespace\": \"avro\",\"name\":\"premise_key\",\"type\":\"string\"}",
+               "value_schema":"{\"type\":\"record\",\"name\":\"meter_usage\",\"namespace\":\"avro\",\"fields\":[{\"name\":\"premise\",\"type\":\"string\",\"doc\":\"Premise\"},{\"name\":\"meter\",\"type\":\"string\",\"doc\":\"Meter Number\"},{\"name\":\"usage\",\"type\":\"int\",\"doc\":\"Usage from field.\"}]}",
+               "records": [{"key":"1000001","value":{"premise":"1000001","meter":"M001","usage":50} } ] }'\
+      "http://localhost:8082/topics/meter_usage"
+
+
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+      -H "Accept: application/vnd.kafka.v2+json" \
+      --data '{"key_schema_id":"1",
+               "value_schema_id":"3",
+               "records": [{"key":"1000002","value":{"premise":"1000002","meter":"M002","usage":20} } ] }'\
+      "http://localhost:8082/topics/meter_usage"
+
+
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" \
+      -H "Accept: application/vnd.kafka.v2+json" \
+      --data '{"key_schema_id":"1",
+               "value_schema_id":"3",
+               "records": [{"key":"1000003","value":{"premise":"1000003","meter":"M003","usage":3} },
+                           {"key":"1000004","value":{"premise":"1000004","meter":"M004","usage":4} },
+                           {"key":"1000005","value":{"premise":"1000005","meter":"M005","usage":5} }
+                          ] }'\
+      "http://localhost:8082/topics/meter_usage"
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
+kafka-console-consumer      --bootstrap-server localhost:9092 --topic meter_usage        --from-beginning
+kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic meter_usage        --from-beginning
+
+
+kafka-console-consumer      --bootstrap-server localhost:9092 --topic account_snapshot      --from-beginning
+kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic account_snapshot      --from-beginning
+
+kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic temp001_to_account_snapshot      --from-beginning
+kafka-console-consumer      --bootstrap-server localhost:9092 --topic temp001_to_account_snapshot      --from-beginning
+
+kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic usage_alert      --from-beginning
+kafka-console-consumer      --bootstrap-server localhost:9092 --topic usage_alert      --from-beginning
+
+
+
+kafka-console-consumer      --bootstrap-server localhost:9092 --topic temp   --from-beginning
+kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic temp --from-beginning
+
+
+
+//////////////////////////////
+For SCHEMA REGISTORY BackUp TOPIC
+
+kafka-console-consumer --bootstrap-server localhost:9092 --topic _schemas   --from-beginning
+
+kafka-console-consumer --bootstrap-server localhost:9092 --topic _schemas --from-beginning --property print.key=true --timeout-ms 1000 1>schemas.log
+
+kafka-console-producer --broker-list localhost:9092 --topic _schemas_restore --property parse.key=true <schemas.log
+
+kafka-console-producer --broker-list localhost:9092 --topic  _schemas --property parse.key=true < schemas.log
+
+
+
+kafka-topics --zookeeper 127.0.0.1:2181 --create --topic vinod-configs  --partitions 1 --replication-factor 1 --config cleanup.policy=compact
+
+kafka-console-producer --broker-list localhost:9092 --topic  vinod-configs --property parse.key=true < schemas.log
+
+
+kafka-console-consumer      --bootstrap-server localhost:9092 --topic vinod-configs   --from-beginning
+
+
+*/
+
+
